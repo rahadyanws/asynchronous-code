@@ -2,63 +2,37 @@ import { Book } from './models/Book';
 import { Member } from './models/Member';
 
 export class Library {
-    private books: Map<string, Book> = new Map();
-    private members: Map<string, Member> = new Map();
+    private books = new Map<string, Book>();
+    private members = new Map<string, Member>();
 
-    addBook(book: Book): void {
-        this.books.set(book.id, book);
-    }
-
-    registerMember(member: Member): void {
-        this.members.set(member.id, member);
-    }
+    addBook(book: Book) { this.books.set(book.id, book); }
+    registerMember(member: Member) { this.members.set(member.id, member); }
 
     findBooks(query: string): Book[] {
-        const results: Book[] = [];
-        const lowerQuery = query.toLowerCase();
-
-        for (const book of this.books.values()) {
-            if (book.title.toLowerCase().includes(lowerQuery) ||
-                book.author.toLowerCase().includes(lowerQuery)) {
-                results.push(book);
-            }
-        }
-        return results;
+        return [...this.books.values()].filter(b =>
+            `${b.title} ${b.author}`.toLowerCase().includes(query.toLowerCase())
+        );
     }
 
-    borrowBook(memberId: string, bookId: string): void {
-        const member = this.members.get(memberId);
-        const book = this.books.get(bookId);
+    borrowBook(mId: string, bId: string): void {
+        const m = this.members.get(mId), b = this.books.get(bId);
+        if (!m || !b) throw new Error('Member Or Book Not Found');
 
-        if (!member) throw new Error('Member not found');
-        if (!book) throw new Error('Book not found');
+        if (!b.isAvailable) throw new Error('Unavailable');
+        if (m.borrowedBooks.includes(bId)) throw new Error('Already Borrowed');
 
-        if (!book.isAvailable) {
-            throw new Error('Book is not available');
-        }
-
-        // Check if member already has this book
-        if (member.borrowedBooks.includes(bookId)) {
-            throw new Error('Member already has this book');
-        }
-
-        book.isAvailable = false;
-        member.borrowedBooks.push(bookId);
+        b.isAvailable = false;
+        m.borrowedBooks.push(bId);
     }
 
-    returnBook(memberId: string, bookId: string): void {
-        const member = this.members.get(memberId);
-        const book = this.books.get(bookId);
+    returnBook(mId: string, bId: string): void {
+        const m = this.members.get(mId), b = this.books.get(bId);
+        if (!m || !b) throw new Error('Member Or Book Not Found');
 
-        if (!member) throw new Error('Member not found');
-        if (!book) throw new Error('Book not found');
+        const idx = m.borrowedBooks.indexOf(bId);
+        if (idx === -1) throw new Error('Not Borrowed');
 
-        const index = member.borrowedBooks.indexOf(bookId);
-        if (index === -1) {
-            throw new Error('Member does not have this book');
-        }
-
-        book.isAvailable = true;
-        member.borrowedBooks.splice(index, 1);
+        b.isAvailable = true;
+        m.borrowedBooks.splice(idx, 1);
     }
 }

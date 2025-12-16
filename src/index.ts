@@ -3,33 +3,16 @@ import { Book } from './models/Book';
 import { Member } from './models/Member';
 
 const lib = new Library();
+lib.addBook(new Book('b1', 'Javascript Handbook', 'Fitzgerald'));
+lib.addBook(new Book('b2', '1984', 'Doe'));
+lib.registerMember(new Member('m1', 'Budi'));
 
-// 1. Setup Library
-console.log('--- Setting up Library ---');
-lib.addBook(new Book('b1', 'The Great Gatsby', 'F. Scott Fitzgerald'));
-lib.addBook(new Book('b2', '1984', 'George Orwell'));
-lib.addBook(new Book('b3', 'TypeScript Handbook', 'Microsoft'));
+console.log('1. Search "Java":', lib.findBooks('Java').map(b => `${b.title} [${b.isAvailable ? 'Avail' : 'Taken'}]`));
 
-const member = new Member('m1', 'Budi');
-lib.registerMember(member);
-console.log('Books and Member added.\n');
+console.log('\n2. Borrowing "Java"...');
+lib.borrowBook('m1', 'b1');
+console.log('   Status:', lib.findBooks('Java').map(b => `${b.title} [${b.isAvailable ? 'Avail' : 'Taken'}]`));
 
-// 2. Search
-console.log('--- Searching Books ---');
-const searchResult = lib.findBooks('Type');
-console.log('Found:', searchResult.map(b => b.title));
-// Output: ['TypeScript Handbook']
-
-// 3. Borrowing
-console.log('\n--- Borrowing Book ---');
-try {
-    console.log(`Member ${member.name} borrowing 'The Great Gatsby'...`);
-    lib.borrowBook('m1', 'b1');
-    console.log('Success! Book borrowed.');
-} catch (error: any) {
-    console.error('Error:', error.message);
-}
-
-// 4. Verify status
-const book1 = lib.findBooks('Gatsby')[0];
-console.log(`\nStatus of 'The Great Gatsby': ${book1.isAvailable ? 'Available' : 'Borrowed'}`);
+console.log('\n3. Returning "Java"...');
+lib.returnBook('m1', 'b1');
+console.log('   Status:', lib.findBooks('Java').map(b => `${b.title} [${b.isAvailable ? 'Avail' : 'Taken'}]`));
