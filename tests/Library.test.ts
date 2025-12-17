@@ -8,29 +8,29 @@ describe('Library', () => {
 
     beforeEach(() => {
         l = new Library();
-        add('b1', 'Javascript Handbook', 'Rowling');
+        add('b1', 'Nest Handbook', 'Rahadyan');
         l.registerMember(new Member('m1', 'John'));
     });
 
     test('search', () => {
-        expect(l.findBooks('Java')).toHaveLength(1);
+        expect(l.findBooks('Nest')).toHaveLength(1);
     });
 
     test('borrow', () => {
         l.borrowBook('m1', 'b1');
-        expect(l.findBooks('Java')[0].isAvailable).toBe(false);
+        expect(l.findBooks('Nest')[0].isAvailable).toBe(false);
     });
 
     test('borrow unavailable/invalid', () => {
         l.borrowBook('m1', 'b1');
         expect(() => l.borrowBook('m1', 'b1')).toThrow('Unavailable');
-        expect(() => l.borrowBook('bad', 'b1')).toThrow('Member Not Found');
+        expect(() => l.borrowBook('m2', 'b1')).toThrow('Member Or Book Not Found');
     });
 
     test('return', () => {
         l.borrowBook('m1', 'b1');
         l.returnBook('m1', 'b1');
-        expect(l.findBooks('Java')[0].isAvailable).toBe(true);
+        expect(l.findBooks('Nest')[0].isAvailable).toBe(true);
     });
 
     test('return invalid', () => {
